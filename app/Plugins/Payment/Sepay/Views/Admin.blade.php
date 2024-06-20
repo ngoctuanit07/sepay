@@ -22,17 +22,29 @@
          <tbody>
 
       <tr>
-            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_urlApi') }}</th>
-            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="sepay_urlApi" data-type="text" data-pk="sepay_urlApi" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('sepay_urlApi') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_urlApi') }}"></a></td>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.ten_ngan_hang') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="ten_ngan_hang" data-type="text" data-pk="ten_ngan_hang" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('ten_ngan_hang') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.ten_ngan_hang') }}"></a></td>
       </tr>
 
           <tr>
-            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_secretKey') }}</th>
-            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="sepay_secretKey" data-type="password" data-pk="sepay_secretKey" data-url="{{ route('admin_config_global.update') }}" data-value="{{ (sc_admin_can_config()) ? sc_config('sepay_secretKey'): 'hidden' }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_secretKey') }}"></a></td>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.so_tai_khoan') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="so_tai_khoan" data-type="text" data-pk="so_tai_khoan" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('so_tai_khoan') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.so_tai_khoan') }}"></a></td>
           </tr>
           <tr>
-            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_partnerCode') }}</th>
-            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="sepay_partnerCode" data-type="text" data-pk="sepay_partnerCode" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('sepay_partnerCode') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.sepay_partnerCode') }}"></a></td>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.chu_tai_khoan') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="chu_tai_khoan" data-type="text" data-pk="chu_tai_khoan" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('chu_tai_khoan') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.chu_tai_khoan') }}"></a></td>
+          </tr>
+          <tr>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.tien_to_thanh_toan') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="tien_to_thanh_toan" data-type="text" data-pk="tien_to_thanh_toan" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('tien_to_thanh_toan') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.tien_to_thanh_toan') }}"></a></td>
+          </tr>
+          <tr>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.webhook_url') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="webhook_url" data-type="text" data-pk="webhook_url" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('webhook_url') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.webhook_url') }}"></a></td>
+          </tr>
+          <tr>
+            <th width="40%">{{ sc_language_render('Plugins/Payment/Sepay::lang.ma_bao_mat') }}</th>
+            <td><a href="#" class="updateData_can_empty editable editable-click" data-name="ma_bao_mat" data-type="text" data-pk="ma_bao_mat" data-url="{{ route('admin_config_global.update') }}" data-value="{{ sc_config('ma_bao_mat') }}" data-title="{{ sc_language_render('Plugins/Payment/Sepay::lang.ma_bao_mat') }}"></a></td>
           </tr>
 
           <tr>

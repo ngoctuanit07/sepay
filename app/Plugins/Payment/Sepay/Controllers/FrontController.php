@@ -6,6 +6,8 @@ use App\Plugins\Payment\Sepay\AppConfig;
 use SCart\Core\Front\Models\ShopOrder;
 use SCart\Core\Front\Controllers\ShopCartController;
 use SCart\Core\Front\Controllers\RootFrontController;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 class FrontController extends RootFrontController
 {
     public $plugin;
@@ -35,18 +37,25 @@ class FrontController extends RootFrontController
             return redirect(sc_route('sepay.sepayqr'));//->with(['error' => $msg]);
             //return $this->prepareDataBeforeSend();
         } else {
+           // die('38');
             return redirect(sc_route('cart'))
                 ->with(['error' => sc_language_render('cart.order_not_found')]);
         }
         
     }
+
+    public function webhook(Request $request): Response{
+        dd("46");
+    }
     public function sepayqr(){
+        $dataOrder = session('dataOrder')?? [];
         $pathPlugin = $this->plugin->pathPlugin;
+        // dd($dataOrder);
         $imgageUrl = 'https://qr.sepay.vn/img?' . http_build_query([
-            'acc' => "123456",
-            'bank' => 'acb',
-            'amount' => 1000,
-            'des' => 123,
+            'acc' => sc_config('so_tai_khoan'),
+            'bank' => sc_config('ten_ngan_hang'),
+            'amount' =>  $dataOrder['total'],
+            'des' => session('orderID'),
             'template' => 'compact',
         ]);
         return view($pathPlugin.'::qr',

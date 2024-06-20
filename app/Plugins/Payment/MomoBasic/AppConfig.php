@@ -1,36 +1,40 @@
 <?php
 /**
- * AppConfig Vnpay basic
- * User for Vnpay api v2.0
- * http://sandbox.sepayment.vn/paymentv2/vpcpay.html
+ * AppConfig Momo basic
+ * User for Momo api v1.0
  *
- * @package    App\Plugins\Payment\Sepay
+ * @package    App\Plugins\Payment\MomoBasic
  * @subpackage AppConfig
- * @copyright  Copyright (c) 2020 SCart ecommerce.
+ * @copyright  Copyright (c) 2020 SCart opensource.
  * @author     Lanh le <lanhktc@gmail.com>
  */
-#App\Plugins\Payment\Sepay\AppConfig.php
-namespace App\Plugins\Payment\Sepay;
+#App\Plugins\Payment\MomoBasic\AppConfig.php
 
-use App\Plugins\Payment\Sepay\Models\PluginModel;
+namespace App\Plugins\Payment\MomoBasic;
+use App\Plugins\Payment\MomoBasic\Models\PluginModel;
 use SCart\Core\Admin\Models\AdminConfig;
 use SCart\Core\Front\Models\ShopOrderStatus;
 use SCart\Core\Front\Models\ShopPaymentStatus;
 use App\Plugins\ConfigDefault;
+
+use App\Plugins\Payment\MomoBasic\ProcessPayment;
+
+
 class AppConfig extends ConfigDefault
 {
-    public $currencyAllow;
-    public $urlApi;
-    private $secretKey;
-    private $partnerCode;
-
     const ORDER_STATUS_PROCESSING = 2; // Processing
     const ORDER_STATUS_FAILD = 6; // Failed
     const PAYMENT_STATUS = 3; // Paid
 
+    private $urlAPI;
+    private $accessKey;
+    private $secretKey;
+    private $partnerCode;
+    public $payment;
+    public $currencyAllow;
+    
     public function __construct()
     {
-        //die('33');
         //Read config from config.json
         $config = file_get_contents(__DIR__.'/config.json');
         $config = json_decode($config, true);
@@ -48,26 +52,19 @@ class AppConfig extends ConfigDefault
         $this->auth = $config['auth'];
         $this->link = $config['link'];
 
-        
-        $this->currencyAllow = ['VND'];
         //Process Payment
-        $this->secretKey = sc_config('sepay_secretKey');
-        $this->partnerCode = sc_config('sepay_partnerCode');
-        $this->urlApi = sc_config('sepay_urlApi');
-    }
+        $this->accessKey = sc_config('momo_accessKey');
+        $this->secretKey = sc_config('momo_secretKey');
+        $this->partnerCode = sc_config('momo_partnerCode');
 
-    /**
-     * Get secrectkey
-     */
-    public function getSecretKey() {
-        return $this->secretKey;
-    }
+        if(sc_config('momo_env') == 'production'){
+            $this->urlAPI = 'https://payment.momo.vn';
+        } else {
+            $this->urlAPI = 'https://test-payment.momo.vn';
+        }
 
-    /**
-     * Get partnerCode
-     */
-    public function getPartnerCode() {
-        return $this->partnerCode;
+        $this->currencyAllow = ['VND'];
+        $this->payment = new ProcessPayment($this->accessKey, $this->partnerCode, $this->secretKey, $this->urlAPI);
     }
 
     public function install()
@@ -78,69 +75,78 @@ class AppConfig extends ConfigDefault
             //Check Plugin key exist
             $return = ['error' => 1, 'msg' => 'Plugin exist'];
         } else {
-            //Insert plugin to config
             $dataInsert = [
                 [
                     'group' => $this->configGroup,
                     'code' => $this->configCode,
                     'key' => $this->configKey,
-                    'sort' => 0,
-                    'value' => self::ON, //Enable extension
+                    'sort' => 0, // Sort extensions in group
+                    'value' => self::ON, //1- Enable extension; 0 - Disable
                     'detail' => $this->pathPlugin.'::lang.title',
                 ],
                 [
                     'group' => '',
                     'code' => $this->configKey.'_config',
-                    'key' => 'sepay_urlApi',
-                    'sort' => 0, // Sort extensions in group
-                    'value' => 'http://sandbox.sepayment.vn/paymentv2/vpcpay.html',
-                    'detail' => $this->pathPlugin.'::lang.sepay_urlApi',
-                ],
-                [
-                    'group' => '',
-                    'code' => $this->configKey.'_config',
-                    'key' => 'sepay_secretKey',
+                    'key' => 'momo_accessKey',
                     'sort' => 0, // Sort extensions in group
                     'value' => '',
-                    'detail' => $this->pathPlugin.'::lang.sepay_secretKey',
+                    'detail' => $this->pathPlugin.'::lang.momo_accessKey',
                 ],
                 [
                     'group' => '',
                     'code' => $this->configKey.'_config',
-                    'key' => 'sepay_partnerCode',
+                    'key' => 'momo_secretKey',
                     'sort' => 0, // Sort extensions in group
                     'value' => '',
-                    'detail' => $this->pathPlugin.'::lang.sepay_partnerCode',
+                    'detail' => $this->pathPlugin.'::lang.momo_secretKey',
                 ],
                 [
                     'group' => '',
                     'code' => $this->configKey.'_config',
-                    'key' => 'sepay_order_status_faild',
+                    'key' => 'momo_partnerCode',
+                    'sort' => 0, // Sort extensions in group
+                    'value' => '',
+                    'detail' => $this->pathPlugin.'::lang.momo_partnerCode',
+                ],
+                [
+                    'group' => '',
+                    'code' => $this->configKey.'_config',
+                    'key' => 'momo_env',
+                    'sort' => 0, // Sort extensions in group
+                    'value' => 'sandbox',
+                    'detail' => $this->pathPlugin.'::lang.momo_env',
+                ],
+                [
+                    'group' => '',
+                    'code' => $this->configKey.'_config',
+                    'key' => 'momo_order_status_faild',
                     'sort' => 0, // Sort extensions in group
                     'value' => self::ORDER_STATUS_FAILD,
-                    'detail' => $this->pathPlugin.'::lang.sepay_order_status_faild',
+                    'detail' => $this->pathPlugin.'::lang.momo_order_status_faild',
                 ],
                 [
                     'group' => '',
                     'code' => $this->configKey.'_config',
-                    'key' => 'sepay_order_status_success',
+                    'key' => 'momo_order_status_success',
                     'sort' => 0, // Sort extensions in group
                     'value' => self::ORDER_STATUS_PROCESSING,
-                    'detail' => $this->pathPlugin.'::lang.sepay_order_status_success',
+                    'detail' => $this->pathPlugin.'::lang.momo_order_status_success',
                 ],
                 [
                     'group' => '',
                     'code' => $this->configKey.'_config',
-                    'key' => 'sepay_payment_status',
+                    'key' => 'momo_payment_status',
                     'sort' => 0, // Sort extensions in group
                     'value' => self::PAYMENT_STATUS,
-                    'detail' => $this->pathPlugin.'::lang.sepay_payment_status',
+                    'detail' => $this->pathPlugin.'::lang.momo_payment_status',
                 ],
+
+
             ];
+            //Insert plugin to config
             $process = AdminConfig::insert(
                 $dataInsert
             );
-
             if (!$process) {
                 $return = ['error' => 1, 'msg' => 'Error when install'];
             } else {
@@ -198,7 +204,8 @@ class AppConfig extends ConfigDefault
                 'breadcrumb' => $breadcrumb,
                 'jsonStatusOrder' => json_encode(ShopOrderStatus::getIdAll()),
                 'jsonPaymentStatus' => json_encode(ShopPaymentStatus::getIdAll()),
-            ]);
+            ]
+        );
     }
 
     public function getData()

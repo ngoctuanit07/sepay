@@ -5,7 +5,7 @@
 if(sc_config('Sepay')) {
 Route::group(
     [
-        'prefix'    => 'plugin/payment/sepay',
+        'prefix'    => 'sepay',
         'namespace' => 'App\Plugins\Payment\Sepay\Controllers',
     ],
     function () {
@@ -15,6 +15,7 @@ Route::group(
         ->name('sepay.sepayqr');
         Route::post('process-form', 'FrontController@processForm')
         ->name('sepay.process_form');
+        Route::post('webhook', 'FrontController@webhook')->name('sepay.webhook');
         Route::get('process', 'FrontController@processResponse')
         ->name('sepay.process');
     }
