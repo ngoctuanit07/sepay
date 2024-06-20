@@ -15,10 +15,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrap();
-        \Illuminate\Support\Facades\Event::listen(
-            \SePay\SePay\Events\SePayWebhookEvent::class,
-            \App\Listeners\SePayWebhookListener::class,
-        );
         //If env is production, then disable debug mode
         if (config('app.env') === 'production') {
             config(['app.debug' => false]);
