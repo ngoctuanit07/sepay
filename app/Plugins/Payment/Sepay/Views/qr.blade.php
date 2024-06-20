@@ -50,7 +50,7 @@
             </div>
         </div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const copyButtons = document.querySelectorAll('[data-bb-toggle="copy"]');
@@ -71,28 +71,42 @@
     $(document).ready(function() {
         const paymentStatus = $('[data-bb-toggle="sepay-transaction-status"]')
 
-        if (paymentStatus.length) {
+        //if (paymentStatus.length) {
             interval = setInterval(() => fetchPaymentStatus(paymentStatus), 3000)
-        }
+        //}
     })
 
     function fetchPaymentStatus(elm) {
-        $.ajax({
-            url: elm.data('url'),
-            method: 'POST',
-            data: {
-                charge_id: elm.data('charge-id')
-            },
-            success: ({ data }) => {
-                if(data.value === 'completed') {
-                    $('#sepay-transaction-status-done').show()
-                    $('#sepay-bank-info').remove()
+    $.ajax({
+        url: "{{ route('sepay.checkorder') }}",
+        method: 'POST',
+        data: {
+            orderId: "{{ $orderId }}"
+        },
+        success: function(response) {
+            console.log(response); // Kiểm tra toàn bộ response trả về
 
-                    clearInterval(interval)
+            // Kiểm tra nếu response có chứa data
+            if (response.status) {
+                console.log(response.status); // Kiểm tra data
+
+                // Kiểm tra nếu data có chứa status
+                if (response.status === 5) {
+                    var orderSuccessUrl = "{{ sc_route('order.success') }}";
+                    window.location.href = orderSuccessUrl;
+
+                    clearInterval(interval);
                 }
+            } else {
+                console.log('No data found in response');
             }
-        })
-    }
+        },
+        error: function(xhr, status, error) {
+            console.log('AJAX Error: ' + error);
+        }
+    });
+}
+
 
     async function fobCopyToClipboard(textToCopy) {
         if (navigator.clipboard && window.isSecureContext) {

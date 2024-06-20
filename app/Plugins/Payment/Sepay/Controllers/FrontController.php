@@ -43,9 +43,61 @@ class FrontController extends RootFrontController
         }
         
     }
+    public function extractCode($content) {
+        // Sử dụng biểu thức chính quy để tìm chuỗi cần lấy
+        preg_match('/^\S+/', $content, $matches);
+        // Trả về kết quả nếu tìm thấy, ngược lại trả về null
+        return $matches[0] ?? null;
+    }
 
     public function webhook(Request $request): Response{
-        dd("46");
+       
+        $dataResponse = request()->all();
+
+        $orderID = $this->extractCode( $dataResponse['content']);
+      //  dd($orderID);
+
+
+       // dd(ShopOrder::find($this->convertFormat($orderID)));
+        ShopOrder::find($this->convertFormat($orderID))->update([
+            'transaction' => $dataResponse['content'], 
+            'status' => sc_config('sepay_order_status_success', 2),
+            'payment_status' => sc_config('sepay_payment_status', 3)
+            ]);
+
+        //Add history
+        $dataHistory = [
+            'order_id' => $this->convertFormat($orderID),
+            'content' => 'Transaction ' . $dataResponse['content'],
+            'order_status_id' => sc_config('sepay_order_status_success', 2),
+        ];
+        (new ShopOrder)->addOrderHistory($dataHistory);
+        (new ShopCartController)->completeOrder();
+        //Complete order
+        // redirect(sc_route('order.success'));
+        return response('ok');
+    }
+
+    public function checkorder(Request $request){
+        $dataRequest = request()->all();
+        $orderID = $dataRequest['orderId'];
+       $order =  ShopOrder::find($orderID);
+       $data = ['status' => $order['status']];
+       return response()->json($data);
+       // dd($order);
+    }
+    function convertFormat($input) {
+        // Chia chuỗi thành các phần bằng cách sử dụng preg_match
+        preg_match('/^(\w)(\w{5})(\w{5})$/', $input, $matches);
+        
+        // Kiểm tra xem có khớp với biểu thức chính quy không
+        if ($matches) {
+            // Ghép các phần lại với nhau bằng dấu "-"
+            return $matches[1] . '-' . $matches[2] . '-' . $matches[3];
+        }
+        
+        // Trả về chuỗi gốc nếu không khớp với biểu thức chính quy
+        return $input;
     }
     public function sepayqr(){
         $dataOrder = session('dataOrder')?? [];
@@ -62,7 +114,8 @@ class FrontController extends RootFrontController
             [
                 'title' => sc_language_render($pathPlugin.'::Lang.info'),
                 'pathPlugin' => $pathPlugin,
-                'imageUrl' => $imgageUrl
+                'imageUrl' => $imgageUrl,
+                'orderId' => session('orderID')
             ]
         );
     }
@@ -170,8 +223,8 @@ class FrontController extends RootFrontController
             ];
             (new ShopOrder)->addOrderHistory($dataHistory);
             //Complete order
-
-            return (new ShopCartController)->completeOrder();
+            return redirect(sc_route('order.success'));
+           // return (new ShopCartController)->completeOrder();
 
         }
     }
